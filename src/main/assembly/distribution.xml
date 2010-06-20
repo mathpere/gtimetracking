@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<assembly>
+	<id>dist</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>target</directory>
+			<outputDirectory/>
+			<includes>
+				<include>*.jar</include>
+				<include>*.properties</include>
+				<include>*.ico</include>
+				<include>lib/*.jar</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>
