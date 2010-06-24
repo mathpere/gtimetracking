@@ -16,8 +16,10 @@
  */
 package com.googlecode.gtimetracking.service;
 
+import java.awt.Desktop;
 import java.awt.TrayIcon.MessageType;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,9 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.gdata.client.authn.oauth.GoogleOAuthHelper;
+import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
+import com.google.gdata.client.authn.oauth.OAuthHmacSha1Signer;
 import com.google.gdata.client.calendar.CalendarQuery;
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.data.DateTime;
@@ -49,8 +54,6 @@ public class GCalendarService {
 			.getLogger(GCalendarService.class);
 
 	private final static String EXPORT_FILENAME = "%1$tY-%1$tm-%1$td_%2$tY-%2$tm-%2$td.xls";
-
-	private EncryptService encryptService;
 
 	private UIService uiService;
 
@@ -73,12 +76,18 @@ public class GCalendarService {
 	private CalendarService createCalendarService(
 			GCalendarCredentials gcalendarCredentials) throws Exception {
 
+		GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
+		oauthParameters.setOAuthConsumerKey("anonymous");
+		oauthParameters.setOAuthConsumerSecret("anonymous");
+		oauthParameters.setOAuthToken(gcalendarCredentials.getToken());
+		oauthParameters.setOAuthTokenSecret(gcalendarCredentials
+				.getTokenSecret());
+
 		CalendarService calendarService = new CalendarService(
 				"track-calendar-service");
 
-		calendarService.setUserCredentials(gcalendarCredentials.getUsername(),
-				encryptService.decryptPassword(gcalendarCredentials
-						.getPassword()));
+		calendarService.setOAuthCredentials(oauthParameters,
+				new OAuthHmacSha1Signer());
 
 		return calendarService;
 	}
@@ -86,7 +95,7 @@ public class GCalendarService {
 	private URL createURL(GCalendarCredentials gcalendarCredentials)
 			throws Exception {
 		return new URL("http://www.google.com/calendar/feeds/"
-				+ gcalendarCredentials.getUsername() + "/private/full");
+				+ gcalendarCredentials.getLogin() + "/private/full");
 	}
 
 	public void export(DateRange dateRange) {
@@ -245,11 +254,6 @@ public class GCalendarService {
 	}
 
 	@Required
-	public void setEncryptService(EncryptService encryptService) {
-		this.encryptService = encryptService;
-	}
-
-	@Required
 	public void setPrefix(String prefix) {
 		if (StringUtils.hasLength(prefix)) {
 			if (prefix.endsWith(" ")) {
@@ -267,4 +271,58 @@ public class GCalendarService {
 		this.uiService = uiService;
 	}
 
+	public void grantAccess() {
+
+		try {
+
+			GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
+			oauthParameters.setOAuthConsumerKey("anonymous");
+			oauthParameters.setOAuthConsumerSecret("anonymous");
+			oauthParameters.setScope("http://www.google.com/calendar/feeds/");
+
+			GoogleOAuthHelper oauthHelper = new GoogleOAuthHelper(
+					new OAuthHmacSha1Signer());
+			oauthHelper.getUnauthorizedRequestToken(oauthParameters);
+			String userAuthorizationUrl = oauthHelper
+					.createUserAuthorizationUrl(oauthParameters);
+
+			Desktop.getDesktop().browse(new URI(userAuthorizationUrl));
+
+			String login = uiService.showGCalendarLoginForm();
+
+			if (StringUtils.hasLength(login)) {
+
+				oauthHelper.getAccessToken(oauthParameters);
+				String accessToken = oauthParameters.getOAuthToken();
+				String accessTokenSecret = oauthParameters
+						.getOAuthTokenSecret();
+
+				GCalendarCredentials.save(new GCalendarCredentials(login,
+						accessToken, accessTokenSecret));
+
+				uiService.displayTrayMessage("Success!",
+						"You have successfully granted access"
+								+ " to your calendar", MessageType.INFO);
+
+			} else {
+
+				GCalendarCredentials.save(new GCalendarCredentials(null, null,
+						null));
+
+				uiService.displayTrayMessage(
+						"Error while granting access to your calendar",
+						"You have to enter your email", MessageType.ERROR);
+
+			}
+
+		} catch (Exception e) {
+
+			LOG.error("Error while granting access to your calendar", e);
+
+			uiService.displayTrayMessage(
+					"Error while granting access to your calendar",
+					"Please consult the log for more details",
+					MessageType.ERROR);
+		}
+	}
 }

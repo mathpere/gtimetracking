@@ -28,17 +28,10 @@
 	<bean id="gcalendarService" class="com.googlecode.gtimetracking.service.GCalendarService">
 		<property name="uiService" ref="uiService" />
 		<property name="prefix" value="${prefix}" />
-		<property name="encryptService" ref="encryptService" />
-	</bean>
-
-	<bean id="encryptService" class="com.googlecode.gtimetracking.service.EncryptService">
-		<property name="passwordEncryption" value="${passwordEncryption}" />
 	</bean>
 
 	<bean id="uiService" class="com.googlecode.gtimetracking.service.UIService"
-		init-method="initUI">
-		<property name="encryptService" ref="encryptService" />
-	</bean>
+		init-method="initUI" />
 
 	<task:scheduled-tasks scheduler="scheduler">
 		<task:scheduled ref="appService" method="track"

@@ -16,32 +16,31 @@
  */
 package com.googlecode.gtimetracking.ui;
 
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
 public class LoginForm extends JPanel {
 
-	private final JTextField nameField = new JTextField(20);
-	private final JPasswordField passwordField = new JPasswordField(20);
+	private final JTextField loginField = new JTextField(20);
+	{
+		loginField.setText("@gmail.com");
+		loginField.setColumns(30);
+	}
 
 	public LoginForm() {
-		setLayout(new GridLayout(2, 2, 5, 5));
-		add(new JLabel("Name:"));
-		add(nameField);
-		add(new JLabel("Password:"));
-		add(passwordField);
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(new JLabel("<html>- Visit the URL to "
+				+ "authorize your OAuth request token.<br />"
+				+ "- Enter your email and click OK</html>"));
+		add(loginField);
 	}
 
-	public String getName() {
-		return nameField.getText();
+	public String getLogin() {
+		return loginField.getText();
 	}
 
-	public String getPassword() {
-		return new String(passwordField.getPassword());
-	}
 }
