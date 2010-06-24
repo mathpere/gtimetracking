@@ -32,18 +32,16 @@ import com.googlecode.gtimetracking.vo.TrackEvent.Event;
 public class AppService implements ApplicationListener<ApplicationEvent> {
 
 	private UIService uiService;
-
-	private Date startTime = null;
-
 	private GCalendarService gcalendarService;
 
+	private Date startTime = null;
 	private boolean firstTime = true;
 
 	public void initApp() {
 		startTime = new Date();
 
 		if (GCalendarCredentials.get() == null) {
-			uiService.showGCalendarLoginForm();
+			gcalendarService.grantAccess();
 		}
 	}
 
@@ -61,12 +59,6 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 				track();
 				System.exit(0);
-				break;
-
-			case ON_SAVE_GCALENDAR_CREDENTIALS:
-
-				GCalendarCredentials.save((GCalendarCredentials) trackEvent
-						.getValue());
 				break;
 
 			case ON_SAVE_TRACK:
@@ -88,7 +80,7 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 			case DOUBLE_CLICK:
 
 				if (GCalendarCredentials.get() == null) {
-					uiService.showGCalendarLoginForm();
+					gcalendarService.grantAccess();
 				} else {
 					uiService.showTrackForm(startTime);
 				}
@@ -102,6 +94,10 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 					gcalendarService.export(dateRange);
 				}
 
+				break;
+
+			case LOGIN:
+				gcalendarService.grantAccess();
 				break;
 			}
 		}

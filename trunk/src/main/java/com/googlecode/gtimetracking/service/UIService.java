@@ -39,7 +39,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
 
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
@@ -47,7 +46,6 @@ import com.googlecode.gtimetracking.ui.ExportWithinDateRange;
 import com.googlecode.gtimetracking.ui.LoginForm;
 import com.googlecode.gtimetracking.ui.TrackForm;
 import com.googlecode.gtimetracking.vo.DateRange;
-import com.googlecode.gtimetracking.vo.GCalendarCredentials;
 import com.googlecode.gtimetracking.vo.Track;
 import com.googlecode.gtimetracking.vo.TrackEvent;
 import com.googlecode.gtimetracking.vo.TrackEvent.Event;
@@ -65,14 +63,6 @@ public class UIService implements ApplicationEventPublisherAware {
 	private JFileChooser fileChooser;
 
 	private ApplicationEventPublisher applicationEventPublisher;
-	private EncryptService encryptService;
-
-	private ActionListener showLoginFormListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			showGCalendarLoginForm();
-		}
-	};
 
 	private ActionListener showExportWithinDateRangeFormListener = new ActionListener() {
 		@Override
@@ -160,7 +150,7 @@ public class UIService implements ApplicationEventPublisherAware {
 
 			popupMenu = new PopupMenu();
 			popupMenu.insertSeparator(0);
-			addMenuItem("Login", showLoginFormListener);
+			addMenuItem("Login", Event.LOGIN);
 			addMenuItem("Export", showExportWithinDateRangeFormListener);
 			addMenuItem("Track now", Event.TRACK_NOW);
 			addMenuItem("Exit", Event.ON_CLOSE);
@@ -206,11 +196,6 @@ public class UIService implements ApplicationEventPublisherAware {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
-	@Required
-	public void setEncryptService(EncryptService encryptService) {
-		this.encryptService = encryptService;
-	}
-
 	public void showExportWithinDateRangeForm() {
 
 		int response = JOptionPane.showConfirmDialog(null,
@@ -224,17 +209,20 @@ public class UIService implements ApplicationEventPublisherAware {
 		}
 	}
 
-	public void showGCalendarLoginForm() {
+	public String showGCalendarLoginForm() {
 
-		int response = JOptionPane.showConfirmDialog(null, loginForm,
-				"Please Enter Name and Password", JOptionPane.OK_CANCEL_OPTION,
+		frame.setVisible(true);
+
+		int response = JOptionPane.showConfirmDialog(frame, loginForm,
+				"Grant access to your calendar", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 
+		frame.setVisible(false);
+
 		if (response == JOptionPane.OK_OPTION) {
-			publishEvent(Event.ON_SAVE_GCALENDAR_CREDENTIALS,
-					new GCalendarCredentials(loginForm.getName(),
-							encryptService.encryptPassword(loginForm
-									.getPassword())));
+			return loginForm.getLogin();
+		} else {
+			return null;
 		}
 	}
 
