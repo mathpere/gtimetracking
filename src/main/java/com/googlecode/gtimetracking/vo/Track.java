@@ -30,19 +30,22 @@ public class Track {
 		}
 	}
 
-	private final String summuary;
+	private final String summary;
 	private final String project;
 	private final String description;
 	private final Date startTime;
 	private final Date endTime;
 
-	public Track(String summuary, String project, String description,
-			Date startTime, Date endTime) {
-		this.summuary = summuary;
+	private final boolean amendEndTimeOfLastTrack;
+
+	public Track(String summary, String project, String description,
+			Date startTime, Date endTime, boolean amendEndTimeOfLastTrack) {
+		this.summary = summary;
 		this.project = project;
 		this.description = description;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.amendEndTimeOfLastTrack = amendEndTimeOfLastTrack;
 	}
 
 	public String getDescription() {
@@ -61,8 +64,12 @@ public class Track {
 		return startTime;
 	}
 
-	public String getSummuary() {
-		return unnull(summuary);
+	public String getSummary() {
+		return unnull(summary);
+	}
+
+	public boolean isAmendEndTimeOfLastTrack() {
+		return amendEndTimeOfLastTrack;
 	}
 
 }

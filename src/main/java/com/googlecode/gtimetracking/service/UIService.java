@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
 
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
@@ -62,6 +63,8 @@ public class UIService implements ApplicationEventPublisherAware {
 	private LoginForm loginForm;
 	private JFileChooser fileChooser;
 
+	private DataService dataService;
+
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	private ActionListener showExportWithinDateRangeFormListener = new ActionListener() {
@@ -71,20 +74,31 @@ public class UIService implements ApplicationEventPublisherAware {
 		}
 	};
 
-	private void addMenuItem(String label, ActionListener actionListener) {
+	private boolean isAmendEndTimeOfLastTrackEnabled = false;
+
+	private void addMenuItem(String label, ActionListener actionListener,
+			int index) {
 		MenuItem menuItem = new MenuItem(label);
 		menuItem.addActionListener(actionListener);
-		popupMenu.add(menuItem);
+		if (index >= 0) {
+			popupMenu.insert(menuItem, index);
+		} else {
+			popupMenu.add(menuItem);
+		}
 	}
 
-	private void addMenuItem(String label, final Event event) {
+	private void addMenuItem(String label, final Event event, int index) {
 		MenuItem menuItem = new MenuItem(label);
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				publishEvent(event, null);
 			}
 		});
-		popupMenu.add(menuItem);
+		if (index >= 0) {
+			popupMenu.insert(menuItem, index);
+		} else {
+			popupMenu.add(menuItem);
+		}
 	}
 
 	public void addUrlMenuItem(String label, final String uri) {
@@ -106,6 +120,14 @@ public class UIService implements ApplicationEventPublisherAware {
 		trayIcon.displayMessage(caption, text, messageType);
 	}
 
+	public void enableAmendEndTimeOfLastTrack() {
+		if (!isAmendEndTimeOfLastTrackEnabled) {
+			trackForm.enableAmendEndTimeOfLastTrack();
+			addMenuItem("Amend now", Event.AMEND, 4);
+			isAmendEndTimeOfLastTrackEnabled = true;
+		}
+	}
+
 	private Image getImage(String name) {
 		return new ImageIcon(getClass().getResource(name)).getImage();
 	}
@@ -119,6 +141,9 @@ public class UIService implements ApplicationEventPublisherAware {
 		}
 
 		trackForm = new TrackForm();
+		trackForm.setProjects(dataService.getProjects());
+		trackForm.setSummaries(dataService.getSummaries());
+
 		loginForm = new LoginForm();
 		exportWithinDateRange = new ExportWithinDateRange();
 		fileChooser = new JFileChooser();
@@ -150,10 +175,10 @@ public class UIService implements ApplicationEventPublisherAware {
 
 			popupMenu = new PopupMenu();
 			popupMenu.insertSeparator(0);
-			addMenuItem("Login", Event.LOGIN);
-			addMenuItem("Export", showExportWithinDateRangeFormListener);
-			addMenuItem("Track now", Event.TRACK_NOW);
-			addMenuItem("Exit", Event.ON_CLOSE);
+			addMenuItem("Login", Event.LOGIN, -1);
+			addMenuItem("Export", showExportWithinDateRangeFormListener, -1);
+			addMenuItem("Track now", Event.TRACK_NOW, -1);
+			addMenuItem("Exit", Event.CLOSE, -1);
 
 			trayIcon = new TrayIcon(image, "Track", popupMenu);
 			trayIcon.setImageAutoSize(true);
@@ -196,6 +221,11 @@ public class UIService implements ApplicationEventPublisherAware {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
+	@Required
+	public void setDataService(DataService dataService) {
+		this.dataService = dataService;
+	}
+
 	public void showExportWithinDateRangeForm() {
 
 		int response = JOptionPane.showConfirmDialog(null,
@@ -203,9 +233,9 @@ public class UIService implements ApplicationEventPublisherAware {
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if (response == JOptionPane.OK_OPTION) {
-			publishEvent(Event.ON_EXPORT_DATE_RANGE, new DateRange(
-					exportWithinDateRange.getFromDate(), exportWithinDateRange
-							.getToDate()));
+			publishEvent(Event.EXPORT_DATE_RANGE,
+					new DateRange(exportWithinDateRange.getFromDate(),
+							exportWithinDateRange.getToDate()));
 		}
 	}
 
@@ -230,16 +260,17 @@ public class UIService implements ApplicationEventPublisherAware {
 
 		frame.setVisible(true);
 
-		int response = JOptionPane.showConfirmDialog(frame, trackForm, String
-				.format(WHAT_HAVE_YOU_DONE_TITLE, startTime),
+		int response = JOptionPane.showConfirmDialog(frame, trackForm,
+				String.format(WHAT_HAVE_YOU_DONE_TITLE, startTime),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		frame.setVisible(false);
 
 		if (response == JOptionPane.OK_OPTION) {
-			publishEvent(Event.ON_SAVE_TRACK, new Track(trackForm.getSummary(),
-					trackForm.getProject(), trackForm.getDescription(),
-					startTime, new Date()));
+			publishEvent(Event.SAVE_TRACK,
+					new Track(trackForm.getSummary(), trackForm.getProject(),
+							trackForm.getDescription(), startTime, new Date(),
+							trackForm.isAmendEndTimeOfLastTrack()));
 		}
 	}
 }

@@ -43,6 +43,7 @@ import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.data.extensions.When;
+import com.google.gdata.data.extensions.Where;
 import com.googlecode.gtimetracking.XlsFileWriter;
 import com.googlecode.gtimetracking.vo.DateRange;
 import com.googlecode.gtimetracking.vo.GCalendarCredentials;
@@ -57,6 +58,8 @@ public class GCalendarService {
 
 	private UIService uiService;
 
+	private DataService dataService;
+
 	private String prefix;
 
 	private final static String LINK_LABEL = "%1$tD %1$tR - %2$tD %2$tR";
@@ -67,10 +70,6 @@ public class GCalendarService {
 			return d;
 		}
 		return (i + 1) / 20d;
-	}
-
-	public boolean canLogActivity() {
-		return GCalendarCredentials.get() != null;
 	}
 
 	private CalendarService createCalendarService(
@@ -131,8 +130,8 @@ public class GCalendarService {
 
 				if (summary.startsWith(prefix)) {
 
-					summary = summary.substring(prefix.length(), summary
-							.length());
+					summary = summary.substring(prefix.length(),
+							summary.length());
 
 					Long timeInSecond = 0L;
 
@@ -168,7 +167,7 @@ public class GCalendarService {
 
 				String activity = entry.getKey();
 				Long totalHours = entry.getValue() / 3600000;
-				Double totalDays = entry.getValue() / 86400000d;
+				Double totalDays = totalHours / 10d;
 
 				fileWriter.writeNext(new Object[] { activity, totalHours,
 						round05(totalDays) });
@@ -177,7 +176,8 @@ public class GCalendarService {
 
 			fileWriter.writeNext(null);
 
-			uiService.displayTrayMessage("Activities exported!",
+			uiService.displayTrayMessage(
+					"Activities exported!",
 					"Successfully exported activities to "
 							+ saveIntoFile.getPath(), MessageType.INFO);
 
@@ -191,84 +191,14 @@ public class GCalendarService {
 	}
 
 	private GCalendarCredentials getGCalendarCredentials() throws Exception {
-		GCalendarCredentials gCalendarCredentials = GCalendarCredentials.get();
+		GCalendarCredentials gCalendarCredentials = dataService
+				.getCredentials();
 
 		if (gCalendarCredentials == null) {
 			throw new Exception("Google Calendar credentials are incorrect!");
 		}
 
 		return gCalendarCredentials;
-	}
-
-	public void logActivity(Track track) {
-
-		try {
-			GCalendarCredentials gcalendarCredentials = getGCalendarCredentials();
-			CalendarService calendarService = createCalendarService(gcalendarCredentials);
-			URL url = createURL(gcalendarCredentials);
-
-			CalendarEventEntry trackEntry = new CalendarEventEntry();
-
-			trackEntry.setTitle(new PlainTextConstruct(prefix
-					+ track.getSummuary()));
-
-			String content = "Project: " + track.getProject() + "\n\n"
-					+ track.getDescription();
-
-			trackEntry.setContent(new PlainTextConstruct(content));
-
-			DateTime startTime = new DateTime(track.getStartTime(), TimeZone
-					.getDefault());
-
-			DateTime endTime = new DateTime(track.getEndTime(), TimeZone
-					.getDefault());
-
-			When eventTimes = new When();
-			eventTimes.setStartTime(startTime);
-			eventTimes.setEndTime(endTime);
-			trackEntry.addTime(eventTimes);
-
-			// Send the request and receive the response:
-			CalendarEventEntry insertedEntry = calendarService.insert(url,
-					trackEntry);
-
-			if (insertedEntry != null) {
-
-				uiService.displayTrayMessage("Activity tracked!",
-						"Successfully added new track event", MessageType.INFO);
-
-				uiService.addUrlMenuItem(String.format(LINK_LABEL, track
-						.getStartTime(), track.getEndTime()), insertedEntry
-						.getHtmlLink().getHref());
-			}
-
-		} catch (Exception e) {
-
-			LOG.error("Error while inserting new entry", e);
-
-			uiService.displayTrayMessage(
-					"Error while inserting new track event",
-					"Please consult the log for more details",
-					MessageType.ERROR);
-		}
-	}
-
-	@Required
-	public void setPrefix(String prefix) {
-		if (StringUtils.hasLength(prefix)) {
-			if (prefix.endsWith(" ")) {
-				this.prefix = prefix;
-			} else {
-				this.prefix = prefix + " ";
-			}
-		} else {
-			this.prefix = prefix = "";
-		}
-	}
-
-	@Required
-	public void setUiService(UIService uiService) {
-		this.uiService = uiService;
 	}
 
 	public void grantAccess() {
@@ -297,7 +227,7 @@ public class GCalendarService {
 				String accessTokenSecret = oauthParameters
 						.getOAuthTokenSecret();
 
-				GCalendarCredentials.save(new GCalendarCredentials(login,
+				dataService.saveCredentials(new GCalendarCredentials(login,
 						accessToken, accessTokenSecret));
 
 				uiService.displayTrayMessage("Success!",
@@ -306,8 +236,8 @@ public class GCalendarService {
 
 			} else {
 
-				GCalendarCredentials.save(new GCalendarCredentials(null, null,
-						null));
+				dataService.saveCredentials(new GCalendarCredentials(null,
+						null, null));
 
 				uiService.displayTrayMessage(
 						"Error while granting access to your calendar",
@@ -321,6 +251,109 @@ public class GCalendarService {
 
 			uiService.displayTrayMessage(
 					"Error while granting access to your calendar",
+					"Please consult the log for more details",
+					MessageType.ERROR);
+		}
+	}
+
+	public boolean hasAccess() {
+		return dataService.getCredentials() != null;
+	}
+
+	public void setDataService(DataService dataService) {
+		this.dataService = dataService;
+	}
+
+	@Required
+	public void setPrefix(String prefix) {
+		if (StringUtils.hasLength(prefix)) {
+			if (prefix.endsWith(" ")) {
+				this.prefix = prefix;
+			} else {
+				this.prefix = prefix + " ";
+			}
+		} else {
+			this.prefix = prefix = "";
+		}
+	}
+
+	@Required
+	public void setUiService(UIService uiService) {
+		this.uiService = uiService;
+	}
+
+	public void track(Track track) {
+
+		try {
+			GCalendarCredentials gcalendarCredentials = getGCalendarCredentials();
+			CalendarService calendarService = createCalendarService(gcalendarCredentials);
+
+			DateTime endTime = new DateTime(track.getEndTime(),
+					TimeZone.getDefault());
+
+			CalendarEventEntry calendarEventEntry = null;
+
+			if (!track.isAmendEndTimeOfLastTrack()) {
+
+				CalendarEventEntry trackEntry = new CalendarEventEntry();
+
+				trackEntry.setTitle(new PlainTextConstruct(prefix
+						+ track.getSummary()));
+
+				trackEntry.addLocation(new Where("", "", track.getProject()));
+
+				trackEntry.setContent(new PlainTextConstruct(track
+						.getDescription()));
+
+				DateTime startTime = new DateTime(track.getStartTime(),
+						TimeZone.getDefault());
+
+				When eventTimes = new When();
+				eventTimes.setStartTime(startTime);
+				eventTimes.setEndTime(endTime);
+				trackEntry.addTime(eventTimes);
+
+				// Send the request and receive the response:
+				calendarEventEntry = calendarService.insert(
+						createURL(gcalendarCredentials), trackEntry);
+
+			} else {
+
+				Track latestTrack = dataService.getLatestTrack();
+
+				track = new Track(latestTrack.getSummary(),
+						latestTrack.getProject(), latestTrack.getDescription(),
+						latestTrack.getStartTime(), track.getEndTime(), false);
+
+				CalendarEventEntry latestCalendarEventEntry = dataService
+						.getLatestCalendarEventEntry();
+
+				latestCalendarEventEntry.getTimes().get(0).setEndTime(endTime);
+
+				calendarEventEntry = latestCalendarEventEntry.update();
+
+			}
+
+			if (calendarEventEntry != null) {
+
+				dataService.saveLatestTrack(track, calendarEventEntry);
+
+				uiService.enableAmendEndTimeOfLastTrack();
+
+				uiService.displayTrayMessage("Activity tracked!",
+						"Successfully added new track event", MessageType.INFO);
+
+				uiService.addUrlMenuItem(String.format(LINK_LABEL,
+						track.getStartTime(), track.getEndTime()),
+						calendarEventEntry.getHtmlLink().getHref());
+			}
+
+		} catch (Exception e) {
+
+			LOG.error("Error while inserting new entry", e);
+
+			uiService.displayTrayMessage(
+					"Error while inserting new track event",
 					"Please consult the log for more details",
 					MessageType.ERROR);
 		}

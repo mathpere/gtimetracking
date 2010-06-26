@@ -19,6 +19,9 @@
 	<bean
 		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
+	<bean id="dataService" class="com.googlecode.gtimetracking.service.DataService"
+		factory-method="getDataService" init-method="initData" />
+
 	<bean id="appService" class="com.googlecode.gtimetracking.service.AppService"
 		init-method="initApp">
 		<property name="uiService" ref="uiService" />
@@ -27,11 +30,14 @@
 
 	<bean id="gcalendarService" class="com.googlecode.gtimetracking.service.GCalendarService">
 		<property name="uiService" ref="uiService" />
+		<property name="dataService" ref="dataService" />
 		<property name="prefix" value="${prefix}" />
 	</bean>
 
 	<bean id="uiService" class="com.googlecode.gtimetracking.service.UIService"
-		init-method="initUI" />
+		init-method="initUI">
+		<property name="dataService" ref="dataService" />
+	</bean>
 
 	<task:scheduled-tasks scheduler="scheduler">
 		<task:scheduled ref="appService" method="track"

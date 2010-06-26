@@ -24,7 +24,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.gtimetracking.vo.DateRange;
-import com.googlecode.gtimetracking.vo.GCalendarCredentials;
 import com.googlecode.gtimetracking.vo.Track;
 import com.googlecode.gtimetracking.vo.TrackEvent;
 import com.googlecode.gtimetracking.vo.TrackEvent.Event;
@@ -40,7 +39,7 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 	public void initApp() {
 		startTime = new Date();
 
-		if (GCalendarCredentials.get() == null) {
+		if (!gcalendarService.hasAccess()) {
 			gcalendarService.grantAccess();
 		}
 	}
@@ -55,18 +54,18 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 			switch (event) {
 
-			case ON_CLOSE:
+			case CLOSE:
 
 				track();
 				System.exit(0);
 				break;
 
-			case ON_SAVE_TRACK:
+			case SAVE_TRACK:
 
 				Track track = (Track) trackEvent.getValue();
 
-				if (StringUtils.hasLength(track.getSummuary())) {
-					gcalendarService.logActivity((Track) trackEvent.getValue());
+				if (StringUtils.hasLength(track.getSummary())) {
+					gcalendarService.track((Track) trackEvent.getValue());
 					startTime = new Date();
 				}
 
@@ -79,14 +78,14 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 			case DOUBLE_CLICK:
 
-				if (GCalendarCredentials.get() == null) {
+				if (!gcalendarService.hasAccess()) {
 					gcalendarService.grantAccess();
 				} else {
 					uiService.showTrackForm(startTime);
 				}
 				break;
 
-			case ON_EXPORT_DATE_RANGE:
+			case EXPORT_DATE_RANGE:
 
 				DateRange dateRange = (DateRange) trackEvent.getValue();
 
@@ -97,8 +96,18 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 				break;
 
 			case LOGIN:
+
 				gcalendarService.grantAccess();
 				break;
+
+			case AMEND:
+
+				gcalendarService.track(new Track(null, null, null, null,
+						new Date(), true));
+				startTime = new Date();
+
+				break;
+
 			}
 		}
 	}
@@ -119,7 +128,7 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 			firstTime = false;
 
-		} else if (gcalendarService.canLogActivity()) {
+		} else if (gcalendarService.hasAccess()) {
 
 			uiService.showTrackForm(startTime);
 
