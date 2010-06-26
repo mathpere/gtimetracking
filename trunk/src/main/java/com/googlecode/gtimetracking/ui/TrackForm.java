@@ -16,26 +16,36 @@
  */
 package com.googlecode.gtimetracking.ui;
 
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
-public class TrackForm extends JPanel {
+public class TrackForm extends JPanel implements ChangeListener {
 
-	private final JTextField summaryField = new JTextField(30);
-	private final JTextField projectField = new JTextField(30);
+	private final JComboBox summaryField = new JComboBox();
+	private final JComboBox projectField = new JComboBox();
 	private final JTextArea descriptionField = new JTextArea(5, 30);
-
-	{
-		descriptionField.setWrapStyleWord(true);
-		descriptionField.setLineWrap(true);
-	}
+	private final JCheckBox amendLastTrackField = new JCheckBox(
+			"Amend end time of the last track");
 
 	public TrackForm() {
+
+		summaryField.setEditable(true);
+		projectField.setEditable(true);
+		// ----------------------
+		descriptionField.setWrapStyleWord(true);
+		descriptionField.setLineWrap(true);
+		// ----------------------
+		amendLastTrackField.setEnabled(false);
+		amendLastTrackField.addChangeListener(this);
+		// ----------------------
 		setLayout(new SpringLayout());
 
 		add(new JLabel("Summary:"));
@@ -48,10 +58,17 @@ public class TrackForm extends JPanel {
 		add(new JLabel("Description:"));
 		add(scrollPane);
 
+		add(new JLabel(""));
+		add(amendLastTrackField);
+
 		// Lay out the panel.
-		SpringUtilities.makeCompactGrid(this, 3, 2, // rows, cols
+		SpringUtilities.makeCompactGrid(this, 4, 2, // rows, cols
 				6, 6, // initX, initY
 				6, 6); // xPad, yPad
+	}
+
+	public void enableAmendEndTimeOfLastTrack() {
+		amendLastTrackField.setEnabled(true);
 	}
 
 	public String getDescription() {
@@ -59,10 +76,40 @@ public class TrackForm extends JPanel {
 	}
 
 	public String getProject() {
-		return projectField.getText();
+		return (String) projectField.getSelectedItem();
 	}
 
 	public String getSummary() {
-		return summaryField.getText();
+		return (String) summaryField.getSelectedItem();
+	}
+
+	public boolean isAmendEndTimeOfLastTrack() {
+		return amendLastTrackField.isSelected();
+	}
+
+	public void setProjects(String[] projects) {
+		projectField.removeAllItems();
+		projectField.addItem("");
+		for (String string : projects) {
+			projectField.addItem(string);
+		}
+	}
+
+	public void setSummaries(String[] summaries) {
+		summaryField.removeAllItems();
+		summaryField.addItem("");
+		for (String string : summaries) {
+			summaryField.addItem(string);
+		}
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if (e.getSource() == amendLastTrackField) {
+			boolean selected = amendLastTrackField.isSelected();
+			descriptionField.setEnabled(!selected);
+			summaryField.setEnabled(!selected);
+			projectField.setEnabled(!selected);
+		}
 	}
 }
