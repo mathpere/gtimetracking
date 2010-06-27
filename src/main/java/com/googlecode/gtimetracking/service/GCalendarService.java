@@ -24,9 +24,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
@@ -63,14 +63,6 @@ public class GCalendarService {
 	private String prefix;
 
 	private final static String LINK_LABEL = "%1$tD %1$tR - %2$tD %2$tR";
-
-	private static double round05(double d) {
-		int i = (int) (d * 20);
-		if (i == d * 20) {
-			return d;
-		}
-		return (i + 1) / 20d;
-	}
 
 	private CalendarService createCalendarService(
 			GCalendarCredentials gcalendarCredentials) throws Exception {
@@ -157,8 +149,7 @@ public class GCalendarService {
 
 			XlsFileWriter fileWriter = new XlsFileWriter();
 			fileWriter.setOutputStream(saveIntoFile);
-			fileWriter.writeHeaders(new String[] { "Activity", "Total hours",
-					"Total days" });
+			fileWriter.writeHeaders(new String[] { "Activity", "Total hours" });
 
 			Set<Entry<String, Long>> entrySet = timeInSecondsByActivity
 					.entrySet();
@@ -167,10 +158,8 @@ public class GCalendarService {
 
 				String activity = entry.getKey();
 				Long totalHours = entry.getValue() / 3600000;
-				Double totalDays = totalHours / 10d;
 
-				fileWriter.writeNext(new Object[] { activity, totalHours,
-						round05(totalDays) });
+				fileWriter.writeNext(new Object[] { activity, totalHours });
 
 			}
 
