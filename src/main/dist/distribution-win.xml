@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<assembly>
+	<id>win</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>target</directory>
+			<outputDirectory/>
+			<includes>
+				<include>*.properties</include>
+				<include>*.exe</include>
+				<include>lib/*.jar</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>
