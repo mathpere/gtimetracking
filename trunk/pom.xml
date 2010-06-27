@@ -157,6 +157,7 @@
 							<javaApplicationStub>${basedir}/src/main/dist/JavaApplicationStub</javaApplicationStub>
 							<iconFile>${basedir}/src/main/dist/gtimetracking.ico</iconFile>
 							<jvmVersion>1.6+</jvmVersion>
+							<zipFile>${project.build.directory}/${project.build.finalName}-${project.version}-osx.zip</zipFile>
 							<additionalResources>
 								<fileSet>
 									<directory>${basedir}/src/main/resources</directory>
