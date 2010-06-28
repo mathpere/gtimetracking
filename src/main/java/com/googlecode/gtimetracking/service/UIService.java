@@ -63,6 +63,9 @@ public class UIService implements ApplicationEventPublisherAware {
 	private LoginForm loginForm;
 	private JFileChooser fileChooser;
 
+	private MenuItem loginMenuItem;
+	private MenuItem logoutMenuItem;
+
 	private DataService dataService;
 
 	private ApplicationEventPublisher applicationEventPublisher;
@@ -76,7 +79,7 @@ public class UIService implements ApplicationEventPublisherAware {
 
 	private boolean isAmendEndTimeOfLastTrackEnabled = false;
 
-	private void addMenuItem(String label, ActionListener actionListener,
+	private MenuItem addMenuItem(String label, ActionListener actionListener,
 			int index) {
 		MenuItem menuItem = new MenuItem(label);
 		menuItem.addActionListener(actionListener);
@@ -85,9 +88,10 @@ public class UIService implements ApplicationEventPublisherAware {
 		} else {
 			popupMenu.add(menuItem);
 		}
+		return menuItem;
 	}
 
-	private void addMenuItem(String label, final Event event, int index) {
+	private MenuItem addMenuItem(String label, final Event event, int index) {
 		MenuItem menuItem = new MenuItem(label);
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -99,6 +103,7 @@ public class UIService implements ApplicationEventPublisherAware {
 		} else {
 			popupMenu.add(menuItem);
 		}
+		return menuItem;
 	}
 
 	public void addUrlMenuItem(String label, final String uri) {
@@ -175,7 +180,8 @@ public class UIService implements ApplicationEventPublisherAware {
 
 			popupMenu = new PopupMenu();
 			popupMenu.insertSeparator(0);
-			addMenuItem("Login", Event.LOGIN, -1);
+			loginMenuItem = addMenuItem("Login", Event.LOGIN, -1);
+			logoutMenuItem = addMenuItem("Logout", Event.LOGOUT, -1);
 			addMenuItem("Export", showExportWithinDateRangeFormListener, -1);
 			addMenuItem("Track now", Event.TRACK_NOW, -1);
 			addMenuItem("Exit", Event.CLOSE, -1);
@@ -254,6 +260,11 @@ public class UIService implements ApplicationEventPublisherAware {
 		} else {
 			return null;
 		}
+	}
+
+	public void enableLogin(boolean enable) {
+		loginMenuItem.setEnabled(enable);
+		logoutMenuItem.setEnabled(!enable);
 	}
 
 	public void showTrackForm(Date startTime) {

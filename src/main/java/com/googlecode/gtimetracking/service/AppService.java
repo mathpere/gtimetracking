@@ -39,7 +39,11 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 	public void initApp() {
 		startTime = new Date();
 
-		if (!gcalendarService.hasAccess()) {
+		boolean hasAccess = gcalendarService.hasAccess();
+
+		uiService.enableLogin(!hasAccess);
+
+		if (!hasAccess) {
 			gcalendarService.grantAccess();
 		}
 	}
@@ -98,6 +102,11 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 			case LOGIN:
 
 				gcalendarService.grantAccess();
+				break;
+
+			case LOGOUT:
+
+				gcalendarService.revokeAccess();
 				break;
 
 			case AMEND:

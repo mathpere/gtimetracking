@@ -64,15 +64,21 @@ public class GCalendarService {
 
 	private final static String LINK_LABEL = "%1$tD %1$tR - %2$tD %2$tR";
 
-	private CalendarService createCalendarService(
-			GCalendarCredentials gcalendarCredentials) throws Exception {
-
+	private GoogleOAuthParameters createGoogleOAuthParameters(
+			GCalendarCredentials gcalendarCredentials) {
 		GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
 		oauthParameters.setOAuthConsumerKey("anonymous");
 		oauthParameters.setOAuthConsumerSecret("anonymous");
 		oauthParameters.setOAuthToken(gcalendarCredentials.getToken());
 		oauthParameters.setOAuthTokenSecret(gcalendarCredentials
 				.getTokenSecret());
+		return oauthParameters;
+	}
+
+	private CalendarService createCalendarService(
+			GCalendarCredentials gcalendarCredentials) throws Exception {
+
+		GoogleOAuthParameters oauthParameters = createGoogleOAuthParameters(gcalendarCredentials);
 
 		CalendarService calendarService = new CalendarService(
 				"track-calendar-service");
@@ -190,6 +196,36 @@ public class GCalendarService {
 		return gCalendarCredentials;
 	}
 
+	public void revokeAccess() {
+
+		try {
+
+			GoogleOAuthHelper oauthHelper = new GoogleOAuthHelper(
+					new OAuthHmacSha1Signer());
+
+			oauthHelper.revokeToken(createGoogleOAuthParameters(dataService
+					.getCredentials()));
+
+			dataService.saveCredentials(null);
+
+			uiService.enableLogin(true);
+
+			uiService.displayTrayMessage("Success!",
+					"You have successfully revoked access"
+							+ " to your calendar", MessageType.INFO);
+
+		} catch (Exception e) {
+
+			LOG.error("Error while revoking access to your calendar", e);
+
+			uiService.displayTrayMessage(
+					"Error while revoking access to your calendar",
+					"Please consult the log for more details",
+					MessageType.ERROR);
+		}
+
+	}
+
 	public void grantAccess() {
 
 		try {
@@ -218,6 +254,8 @@ public class GCalendarService {
 
 				dataService.saveCredentials(new GCalendarCredentials(login,
 						accessToken, accessTokenSecret));
+
+				uiService.enableLogin(false);
 
 				uiService.displayTrayMessage("Success!",
 						"You have successfully granted access"
