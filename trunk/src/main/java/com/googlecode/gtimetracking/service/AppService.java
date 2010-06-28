@@ -16,6 +16,7 @@
  */
 package com.googlecode.gtimetracking.service;
 
+import java.awt.TrayIcon.MessageType;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Required;
@@ -32,8 +33,10 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 	private UIService uiService;
 	private GCalendarService gcalendarService;
+	private DataService dataService;
 
 	private Date startTime = null;
+
 	private boolean firstTime = true;
 
 	public void initApp() {
@@ -117,8 +120,20 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 				break;
 
+			case CLEAR_DATA:
+
+				dataService.clearData();
+				uiService.displayTrayMessage("Success!",
+						"Successfully cleared data", MessageType.INFO);
+
+				break;
 			}
 		}
+	}
+
+	@Required
+	public void setDataService(DataService dataService) {
+		this.dataService = dataService;
 	}
 
 	@Required

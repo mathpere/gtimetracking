@@ -26,6 +26,7 @@
 		init-method="initApp">
 		<property name="uiService" ref="uiService" />
 		<property name="gcalendarService" ref="gcalendarService" />
+		<property name="dataService" ref="dataService" />
 	</bean>
 
 	<bean id="gcalendarService" class="com.googlecode.gtimetracking.service.GCalendarService">

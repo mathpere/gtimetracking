@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationEvent;
 public class TrackEvent extends ApplicationEvent {
 
 	public enum Event {
-		CLOSE, SAVE_TRACK, TRACK_NOW, DOUBLE_CLICK, EXPORT_DATE_RANGE, LOGIN, AMEND, LOGOUT;
+		CLOSE, SAVE_TRACK, TRACK_NOW, DOUBLE_CLICK, EXPORT_DATE_RANGE, LOGIN, AMEND, LOGOUT, CLEAR_DATA;
 	}
 
 	private static final long serialVersionUID = 1L;

@@ -48,6 +48,11 @@ public class DataService {
 	private DataService() {
 	}
 
+	public void clearData() {
+		Preferences.userRoot().put(SUMMARIES_KEY, "");
+		Preferences.userRoot().put(PROJECTS_KEY, "");
+	}
+
 	public GCalendarCredentials getCredentials() {
 
 		String login = Preferences.userRoot().get(LOGIN_KEY, null);
