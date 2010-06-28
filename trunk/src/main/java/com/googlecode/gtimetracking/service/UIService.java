@@ -65,6 +65,7 @@ public class UIService implements ApplicationEventPublisherAware {
 
 	private MenuItem loginMenuItem;
 	private MenuItem logoutMenuItem;
+	private MenuItem amendNowItem;
 
 	private DataService dataService;
 
@@ -76,8 +77,6 @@ public class UIService implements ApplicationEventPublisherAware {
 			showExportWithinDateRangeForm();
 		}
 	};
-
-	private boolean isAmendEndTimeOfLastTrackEnabled = false;
 
 	private MenuItem addMenuItem(String label, ActionListener actionListener,
 			int index) {
@@ -126,11 +125,7 @@ public class UIService implements ApplicationEventPublisherAware {
 	}
 
 	public void enableAmendEndTimeOfLastTrack() {
-		if (!isAmendEndTimeOfLastTrackEnabled) {
-			trackForm.enableAmendEndTimeOfLastTrack();
-			addMenuItem("Amend now", Event.AMEND, 4);
-			isAmendEndTimeOfLastTrackEnabled = true;
-		}
+		amendNowItem.setEnabled(true);
 	}
 
 	private Image getImage(String name) {
@@ -183,7 +178,8 @@ public class UIService implements ApplicationEventPublisherAware {
 			loginMenuItem = addMenuItem("Login", Event.LOGIN, -1);
 			logoutMenuItem = addMenuItem("Logout", Event.LOGOUT, -1);
 			addMenuItem("Export", showExportWithinDateRangeFormListener, -1);
-			addMenuItem("Track now", Event.TRACK_NOW, -1);
+			amendNowItem = addMenuItem("Amend now", Event.AMEND, -1);
+			amendNowItem.setEnabled(false);
 			addMenuItem("Exit", Event.CLOSE, -1);
 
 			trayIcon = new TrayIcon(image, "Track", popupMenu);
