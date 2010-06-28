@@ -40,7 +40,7 @@ public class LoginForm extends JPanel {
 	}
 
 	public String getLogin() {
-		return loginField.getText();
+		return loginField.getText().replaceAll(" ", "");
 	}
 
 }
