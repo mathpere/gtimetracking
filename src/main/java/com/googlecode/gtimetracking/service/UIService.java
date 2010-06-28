@@ -174,12 +174,16 @@ public class UIService implements ApplicationEventPublisherAware {
 					getClass().getResource("1276317050_clock.png"));
 
 			popupMenu = new PopupMenu();
+
 			popupMenu.insertSeparator(0);
-			loginMenuItem = addMenuItem("Login", Event.LOGIN, -1);
-			logoutMenuItem = addMenuItem("Logout", Event.LOGOUT, -1);
-			addMenuItem("Export", showExportWithinDateRangeFormListener, -1);
+			addMenuItem("Track now", Event.TRACK_NOW, -1);
 			amendNowItem = addMenuItem("Amend now", Event.AMEND, -1);
 			amendNowItem.setEnabled(false);
+			addMenuItem("Export", showExportWithinDateRangeFormListener, -1);
+			popupMenu.insertSeparator(5);
+			loginMenuItem = addMenuItem("Login", Event.LOGIN, -1);
+			logoutMenuItem = addMenuItem("Logout", Event.LOGOUT, -1);
+			logoutMenuItem = addMenuItem("Clear data", Event.CLEAR_DATA, -1);
 			addMenuItem("Exit", Event.CLOSE, -1);
 
 			trayIcon = new TrayIcon(image, "Track", popupMenu);
