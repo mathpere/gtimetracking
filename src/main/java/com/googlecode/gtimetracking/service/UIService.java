@@ -71,6 +71,8 @@ public class UIService implements ApplicationEventPublisherAware {
 
 	private ApplicationEventPublisher applicationEventPublisher;
 
+	boolean isEnabledAmendEndTimeOfLastTrack = false;
+
 	private ActionListener showExportWithinDateRangeFormListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -125,7 +127,16 @@ public class UIService implements ApplicationEventPublisherAware {
 	}
 
 	public void enableAmendEndTimeOfLastTrack() {
-		amendNowItem.setEnabled(true);
+		if (!isEnabledAmendEndTimeOfLastTrack) {
+			amendNowItem.setEnabled(true);
+			trackForm.enableAmendEndTimeOfLastTrack();
+			isEnabledAmendEndTimeOfLastTrack = true;
+		}
+	}
+
+	public void enableLogin(boolean enable) {
+		loginMenuItem.setEnabled(enable);
+		logoutMenuItem.setEnabled(!enable);
 	}
 
 	private Image getImage(String name) {
@@ -260,11 +271,6 @@ public class UIService implements ApplicationEventPublisherAware {
 		} else {
 			return null;
 		}
-	}
-
-	public void enableLogin(boolean enable) {
-		loginMenuItem.setEnabled(enable);
-		logoutMenuItem.setEnabled(!enable);
 	}
 
 	public void showTrackForm(Date startTime) {
