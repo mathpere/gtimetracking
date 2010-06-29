@@ -14,6 +14,7 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
+				<value>http://gtimetracking.googlecode.com/svn/trunk/src/main/dist/version.txt</value>
 				<value>classpath:gtimetracking.properties</value>
 				<value>file:#{systemProperties['user.home']}#{systemProperties['file.separator']}.gtimetracking#{systemProperties['file.separator']}gtimetracking.properties</value>
 			</list>
@@ -24,6 +25,15 @@
 
 	<bean
 		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+	<bean id="versionCheckerService"
+		class="com.googlecode.gtimetracking.service.VersionCheckerService"
+		init-method="checksVersion">
+		<property name="currentVersion" value="${project.version}" />
+		<property name="latestVersion" value="${project.latestversion}" />
+		<property name="downloadUrl" value="http://code.google.com/p/gtimetracking/downloads/list" />
+		<property name="uiService" ref="uiService" />
+	</bean>
 
 	<bean id="dataService" class="com.googlecode.gtimetracking.service.DataService"
 		factory-method="getDataService" init-method="initData" />
