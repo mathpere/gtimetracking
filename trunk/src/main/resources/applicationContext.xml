@@ -12,8 +12,14 @@
 
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location" value="classpath:config.properties" />
+		<property name="locations">
+			<list>
+				<value>classpath:gtimetracking.properties</value>
+				<value>file:#{ systemProperties['user.home'] }/.gtimetracking/gtimetracking.properties</value>
+			</list>
+		</property>
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="ignoreResourceNotFound" value="true" />
 	</bean>
 
 	<bean

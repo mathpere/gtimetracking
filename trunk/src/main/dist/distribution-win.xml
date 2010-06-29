@@ -10,7 +10,6 @@
 			<directory>target</directory>
 			<outputDirectory/>
 			<includes>
-				<include>*.properties</include>
 				<include>*.exe</include>
 				<include>lib/*.jar</include>
 			</includes>
