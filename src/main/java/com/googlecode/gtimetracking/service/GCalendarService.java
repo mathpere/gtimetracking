@@ -16,10 +16,8 @@
  */
 package com.googlecode.gtimetracking.service;
 
-import java.awt.Desktop;
 import java.awt.TrayIcon.MessageType;
 import java.io.File;
-import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -241,7 +239,7 @@ public class GCalendarService {
 			String userAuthorizationUrl = oauthHelper
 					.createUserAuthorizationUrl(oauthParameters);
 
-			Desktop.getDesktop().browse(new URI(userAuthorizationUrl));
+			uiService.browse(userAuthorizationUrl);
 
 			String login = uiService.showGCalendarLoginForm();
 

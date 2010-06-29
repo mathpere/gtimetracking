@@ -30,7 +30,7 @@
 			<url>http://www.9stmaryrd.com/maven</url>
 		</repository>
 	</repositories>
-	
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>akathist-repository</id>
@@ -38,13 +38,32 @@
 			<url>http://www.9stmaryrd.com/maven</url>
 		</pluginRepository>
 	</pluginRepositories>
-  
+
 	<profiles>
 		<profile>
 			<id>dist</id>
 			<build>
 				<finalName>${artifactId}</finalName>
 				<plugins>
+					<!-- create version file -->
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.3</version>
+						<executions>
+							<execution>
+								<id>create-version</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<echo file="${basedir}/src/main/dist/version.txt" append="false" message="project.latestversion=${project.version}" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<!-- configure manifest -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -93,9 +112,9 @@
 								</goals>
 								<configuration>
 									<headerType>gui</headerType>
-									<outfile>${project.build.directory}/${build.finalName}.exe</outfile>
-									<jar>${project.build.directory}/${build.finalName}.jar</jar>
-									<errTitle>${build.finalName}</errTitle>
+									<outfile>${project.build.directory}/${project.build.finalName}.exe</outfile>
+									<jar>${project.build.directory}/${project.build.finalName}.jar</jar>
+									<errTitle>${project.build.finalName}</errTitle>
 									<icon>${basedir}/src/main/dist/gtimetracking.ico</icon>
 									<jre>
 										<minVersion>1.6.0</minVersion>
@@ -109,7 +128,7 @@
 										<txtProductVersion>${project.version}</txtProductVersion>
 										<productName>GTimeTracking</productName>
 										<internalName>gtimetracking</internalName>
-										<originalFilename>${build.finalName}.exe</originalFilename>
+										<originalFilename>${project.build.finalName}.exe</originalFilename>
 									</versionInfo>
 								</configuration>
 							</execution>
@@ -129,10 +148,10 @@
 						</configuration>
 						<executions>
 							<execution>
-							<phase>package</phase>
-							<goals>
-								<goal>bundle</goal>
-							</goals>
+								<phase>package</phase>
+								<goals>
+									<goal>bundle</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>
@@ -170,8 +189,15 @@
 	</profiles>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
-			<!--  encode the resources into UTF-8 -->
+			<!-- encode the resources into UTF-8 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -180,7 +206,7 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-			<!--  tell the compiler we can use 1.6 -->
+			<!-- tell the compiler we can use 1.6 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

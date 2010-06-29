@@ -121,6 +121,10 @@ public class UIService implements ApplicationEventPublisherAware {
 		popupMenu.insert(menuItem, 0);
 	}
 
+	public void browse(String url) throws Exception {
+		Desktop.getDesktop().browse(new URI(url));
+	}
+
 	public void displayTrayMessage(String caption, String text,
 			TrayIcon.MessageType messageType) {
 		trayIcon.displayMessage(caption, text, messageType);
@@ -141,6 +145,17 @@ public class UIService implements ApplicationEventPublisherAware {
 
 	private Image getImage(String name) {
 		return new ImageIcon(getClass().getResource(name)).getImage();
+	}
+
+	public boolean promptInformation(String title, String message) {
+		int showConfirmDialog = JOptionPane.showConfirmDialog(null, message,
+				title, JOptionPane.INFORMATION_MESSAGE);
+
+		if (showConfirmDialog == JOptionPane.YES_OPTION) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void initUI() {
