@@ -15,7 +15,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:gtimetracking.properties</value>
-				<value>file:#{ systemProperties['user.home'] }/.gtimetracking/gtimetracking.properties</value>
+				<value>file:#{systemProperties['user.home']}#{systemProperties['file.separator']}.gtimetracking#{systemProperties['file.separator']}gtimetracking.properties</value>
 			</list>
 		</property>
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
