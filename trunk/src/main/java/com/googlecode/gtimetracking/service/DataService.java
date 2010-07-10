@@ -115,24 +115,27 @@ public class DataService {
 		this.latestTrack = t;
 		this.latestCalendarEventEntry = e;
 
-		String project = latestTrack.getProject();
+		if (latestTrack != null) {
 
-		if (StringUtils.hasLength(project)) {
-			projects = StringUtils.addStringToArray(projects, project);
-			projects = StringUtils.removeDuplicateStrings(projects);
+			String project = latestTrack.getProject();
 
-			Preferences.userRoot().put(PROJECTS_KEY,
-					StringUtils.arrayToDelimitedString(projects, "\t"));
-		}
+			if (StringUtils.hasLength(project)) {
+				projects = StringUtils.addStringToArray(projects, project);
+				projects = StringUtils.removeDuplicateStrings(projects);
 
-		String summary = latestTrack.getSummary();
+				Preferences.userRoot().put(PROJECTS_KEY,
+						StringUtils.arrayToDelimitedString(projects, "\t"));
+			}
 
-		if (StringUtils.hasLength(summary)) {
-			summaries = StringUtils.addStringToArray(summaries, summary);
-			summaries = StringUtils.removeDuplicateStrings(summaries);
+			String summary = latestTrack.getSummary();
 
-			Preferences.userRoot().put(SUMMARIES_KEY,
-					StringUtils.arrayToDelimitedString(summaries, "\t"));
+			if (StringUtils.hasLength(summary)) {
+				summaries = StringUtils.addStringToArray(summaries, summary);
+				summaries = StringUtils.removeDuplicateStrings(summaries);
+
+				Preferences.userRoot().put(SUMMARIES_KEY,
+						StringUtils.arrayToDelimitedString(summaries, "\t"));
+			}
 		}
 	}
 }
