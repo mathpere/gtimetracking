@@ -51,10 +51,20 @@ public class ExportWithinDateRange extends JPanel {
 	}
 
 	public Date getFromDate() {
-		return fromDateChooser.getDate();
+		Calendar instance = Calendar.getInstance();
+		instance.setTime(fromDateChooser.getDate());
+		instance.set(Calendar.HOUR_OF_DAY, 0);
+		instance.set(Calendar.MINUTE, 0);
+		instance.set(Calendar.SECOND, 0);
+		return instance.getTime();
 	}
 
 	public Date getToDate() {
-		return toDateChooser.getDate();
+		Calendar instance = Calendar.getInstance();
+		instance.setTime(toDateChooser.getDate());
+		instance.set(Calendar.HOUR_OF_DAY, 23);
+		instance.set(Calendar.MINUTE, 59);
+		instance.set(Calendar.SECOND, 59);
+		return instance.getTime();
 	}
 }
