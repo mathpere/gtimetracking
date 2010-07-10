@@ -18,13 +18,14 @@ package com.googlecode.gtimetracking.vo;
 
 import java.util.Date;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.springframework.util.StringUtils;
 
 public class Track {
 
 	private final static String unnull(String input) {
 		if (StringUtils.hasLength(input)) {
-			return input;
+			return StringUtils.trimWhitespace(input);
 		} else {
 			return "";
 		}
@@ -72,4 +73,23 @@ public class Track {
 		return amendEndTimeOfLastTrack;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (this == obj) {
+			return true;
+		} else if (!(obj instanceof Track)) {
+			return false;
+		}
+
+		Track other = (Track) obj;
+
+		return EqualsBuilder.reflectionEquals(other.getDescription(),
+				getDescription())
+				&& EqualsBuilder.reflectionEquals(other.getSummary(),
+						getSummary())
+				&& EqualsBuilder.reflectionEquals(other.getProject(),
+						getProject());
+	}
 }

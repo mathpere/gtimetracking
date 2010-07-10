@@ -42,6 +42,7 @@ import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.data.extensions.Where;
+import com.google.gdata.util.ResourceNotFoundException;
 import com.googlecode.gtimetracking.XlsFileWriter;
 import com.googlecode.gtimetracking.vo.DateRange;
 import com.googlecode.gtimetracking.vo.GCalendarCredentials;
@@ -307,7 +308,10 @@ public class GCalendarService {
 		this.uiService = uiService;
 	}
 
-	public void track(Track track) {
+	public void track(final Track track) {
+
+		boolean amendEndTimeOfLastTrack = track.isAmendEndTimeOfLastTrack()
+				|| track.equals(dataService.getLatestTrack());
 
 		try {
 			GCalendarCredentials gcalendarCredentials = getGCalendarCredentials();
@@ -318,7 +322,11 @@ public class GCalendarService {
 
 			CalendarEventEntry calendarEventEntry = null;
 
-			if (!track.isAmendEndTimeOfLastTrack()) {
+			Track _track = null;
+
+			if (!amendEndTimeOfLastTrack) {
+
+				_track = track;
 
 				CalendarEventEntry trackEntry = new CalendarEventEntry();
 
@@ -346,7 +354,7 @@ public class GCalendarService {
 
 				Track latestTrack = dataService.getLatestTrack();
 
-				track = new Track(latestTrack.getSummary(),
+				_track = new Track(latestTrack.getSummary(),
 						latestTrack.getProject(), latestTrack.getDescription(),
 						latestTrack.getStartTime(), track.getEndTime(), false);
 
@@ -361,7 +369,7 @@ public class GCalendarService {
 
 			if (calendarEventEntry != null) {
 
-				dataService.saveLatestTrack(track, calendarEventEntry);
+				dataService.saveLatestTrack(_track, calendarEventEntry);
 
 				uiService.enableAmendEndTimeOfLastTrack();
 
@@ -369,18 +377,34 @@ public class GCalendarService {
 						"Successfully added new track event", MessageType.INFO);
 
 				uiService.addUrlMenuItem(String.format(LINK_LABEL,
-						track.getStartTime(), track.getEndTime()),
+						_track.getStartTime(), _track.getEndTime()),
 						calendarEventEntry.getHtmlLink().getHref());
 			}
 
 		} catch (Exception e) {
 
-			LOG.error("Error while inserting new entry", e);
+			if (e instanceof ResourceNotFoundException
+					&& amendEndTimeOfLastTrack
+					&& ((ResourceNotFoundException) e).getResponseBody()
+							.equals("No events found\n")) {
 
-			uiService.displayTrayMessage(
-					"Error while inserting new track event",
-					"Please consult the log for more details",
-					MessageType.ERROR);
+				Track latestTrack = dataService.getLatestTrack();
+
+				dataService.saveLatestTrack(null, null);
+
+				track(new Track(latestTrack.getSummary(),
+						latestTrack.getProject(), latestTrack.getDescription(),
+						latestTrack.getStartTime(), track.getEndTime(), false));
+
+			} else {
+
+				LOG.error("Error while inserting new entry", e);
+
+				uiService.displayTrayMessage(
+						"Error while inserting new track event",
+						"Please consult the log for more details",
+						MessageType.ERROR);
+			}
 		}
 	}
 }
