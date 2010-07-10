@@ -6,7 +6,7 @@
 	<groupId>com.googlecode</groupId>
 	<artifactId>gtimetracking</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3</version>
+	<version>1.4</version>
 	<name>GTimeTracking</name>
 	<url>http://gtimetracking.googlecode.com/</url>
 
@@ -254,6 +254,21 @@
 		<dependency>
 			<groupId>com.google.gdata</groupId>
 			<artifactId>gdata-core</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gdata</groupId>
+			<artifactId>gdata-docs</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gdata</groupId>
+			<artifactId>gdata-docs-meta</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gdata</groupId>
+			<artifactId>gdata-media</artifactId>
 			<version>1.0</version>
 		</dependency>
 		<dependency>

@@ -32,7 +32,7 @@ import com.googlecode.gtimetracking.vo.TrackEvent.Event;
 public class AppService implements ApplicationListener<ApplicationEvent> {
 
 	private UIService uiService;
-	private GCalendarService gcalendarService;
+	private GoogleService googleService;
 	private DataService dataService;
 
 	private Date startTime = null;
@@ -42,12 +42,12 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 	public void initApp() {
 		startTime = new Date();
 
-		boolean hasAccess = gcalendarService.hasAccess();
+		boolean hasAccess = googleService.hasAccess();
 
 		uiService.enableLogin(!hasAccess);
 
 		if (!hasAccess) {
-			gcalendarService.grantAccess();
+			googleService.grantAccess();
 		}
 	}
 
@@ -72,7 +72,7 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 				Track track = (Track) trackEvent.getValue();
 
 				if (StringUtils.hasLength(track.getSummary())) {
-					gcalendarService.track((Track) trackEvent.getValue());
+					googleService.track((Track) trackEvent.getValue());
 					startTime = new Date();
 				}
 
@@ -85,8 +85,8 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 			case DOUBLE_CLICK:
 
-				if (!gcalendarService.hasAccess()) {
-					gcalendarService.grantAccess();
+				if (!googleService.hasAccess()) {
+					googleService.grantAccess();
 				} else {
 					uiService.showTrackForm(startTime);
 				}
@@ -97,24 +97,24 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 				DateRange dateRange = (DateRange) trackEvent.getValue();
 
 				if (dateRange.getFrom() != null && dateRange.getTo() != null) {
-					gcalendarService.export(dateRange);
+					googleService.export(dateRange);
 				}
 
 				break;
 
 			case LOGIN:
 
-				gcalendarService.grantAccess();
+				googleService.grantAccess();
 				break;
 
 			case LOGOUT:
 
-				gcalendarService.revokeAccess();
+				googleService.revokeAccess();
 				break;
 
 			case AMEND:
 
-				gcalendarService.track(new Track(null, null, null, null,
+				googleService.track(new Track(null, null, null, null,
 						new Date(), true));
 				startTime = new Date();
 
@@ -137,8 +137,8 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 	}
 
 	@Required
-	public void setGcalendarService(GCalendarService gcalendarService) {
-		this.gcalendarService = gcalendarService;
+	public void setGoogleService(GoogleService googleService) {
+		this.googleService = googleService;
 	}
 
 	@Required
@@ -152,7 +152,7 @@ public class AppService implements ApplicationListener<ApplicationEvent> {
 
 			firstTime = false;
 
-		} else if (gcalendarService.hasAccess()) {
+		} else if (googleService.hasAccess()) {
 
 			uiService.showTrackForm(startTime);
 

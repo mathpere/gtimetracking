@@ -21,14 +21,14 @@ import java.util.prefs.Preferences;
 import org.springframework.util.StringUtils;
 
 import com.google.gdata.data.calendar.CalendarEventEntry;
-import com.googlecode.gtimetracking.vo.GCalendarCredentials;
+import com.googlecode.gtimetracking.vo.GoogleCredentials;
 import com.googlecode.gtimetracking.vo.Track;
 
 public class DataService {
 
-	private final static String LOGIN_KEY = "com.googlecode.gtimetracking.gclogin";
-	private final static String TOKEN_KEY = "com.googlecode.gtimetracking.gctoken";
-	private final static String TOKEN_SECRET_KEY = "com.googlecode.gtimetracking.gctokensecret";
+	private final static String LOGIN_KEY = "com.googlecode.gtimetracking.gclogin.v1";
+	private final static String TOKEN_KEY = "com.googlecode.gtimetracking.gctoken.v1";
+	private final static String TOKEN_SECRET_KEY = "com.googlecode.gtimetracking.gctokensecret.v1";
 
 	private final static String PROJECTS_KEY = "com.googlecode.gtimetracking.projects.v1";
 	private final static String SUMMARIES_KEY = "com.googlecode.gtimetracking.summaries.v1";
@@ -53,7 +53,7 @@ public class DataService {
 		Preferences.userRoot().put(PROJECTS_KEY, "");
 	}
 
-	public GCalendarCredentials getCredentials() {
+	public GoogleCredentials getCredentials() {
 
 		String login = Preferences.userRoot().get(LOGIN_KEY, null);
 		String token = Preferences.userRoot().get(TOKEN_KEY, null);
@@ -66,7 +66,7 @@ public class DataService {
 			return null;
 
 		} else {
-			return new GCalendarCredentials(login, token, tokenSecret);
+			return new GoogleCredentials(login, token, tokenSecret);
 		}
 	}
 
@@ -94,13 +94,13 @@ public class DataService {
 				.userRoot().get(PROJECTS_KEY, ""), "\t");
 	}
 
-	public void saveCredentials(GCalendarCredentials credentials) {
+	public void saveCredentials(GoogleCredentials credentials) {
 
 		if ((credentials == null)
 				|| !StringUtils.hasLength(credentials.getLogin())
 				|| !StringUtils.hasLength(credentials.getToken())
 				|| !StringUtils.hasLength(credentials.getTokenSecret())) {
-			credentials = new GCalendarCredentials("", "", "");
+			credentials = new GoogleCredentials("", "", "");
 		}
 
 		Preferences.userRoot().put(TOKEN_KEY, credentials.getToken());
