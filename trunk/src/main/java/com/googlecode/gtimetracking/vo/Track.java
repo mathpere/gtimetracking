@@ -19,17 +19,8 @@ package com.googlecode.gtimetracking.vo;
 import java.util.Date;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.springframework.util.StringUtils;
 
 public class Track {
-
-	private final static String unnull(String input) {
-		if (StringUtils.hasLength(input)) {
-			return StringUtils.trimWhitespace(input);
-		} else {
-			return "";
-		}
-	}
 
 	private final String summary;
 	private final String project;
@@ -41,16 +32,16 @@ public class Track {
 
 	public Track(String summary, String project, String description,
 			Date startTime, Date endTime, boolean amendEndTimeOfLastTrack) {
-		this.summary = summary;
-		this.project = project;
-		this.description = description;
+		this.summary = Utils.unnull(summary);
+		this.project = Utils.unnull(project);
+		this.description = Utils.unnull(description);
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.amendEndTimeOfLastTrack = amendEndTimeOfLastTrack;
 	}
 
 	public String getDescription() {
-		return unnull(description);
+		return description;
 	}
 
 	public Date getEndTime() {
@@ -58,7 +49,7 @@ public class Track {
 	}
 
 	public String getProject() {
-		return unnull(project);
+		return project;
 	}
 
 	public Date getStartTime() {
@@ -66,7 +57,7 @@ public class Track {
 	}
 
 	public String getSummary() {
-		return unnull(summary);
+		return summary;
 	}
 
 	public boolean isAmendEndTimeOfLastTrack() {
@@ -86,10 +77,8 @@ public class Track {
 		Track other = (Track) obj;
 
 		return EqualsBuilder.reflectionEquals(other.getDescription(),
-				getDescription())
-				&& EqualsBuilder.reflectionEquals(other.getSummary(),
-						getSummary())
-				&& EqualsBuilder.reflectionEquals(other.getProject(),
-						getProject());
+				description)
+				&& EqualsBuilder.reflectionEquals(other.getSummary(), summary)
+				&& EqualsBuilder.reflectionEquals(other.getProject(), project);
 	}
 }

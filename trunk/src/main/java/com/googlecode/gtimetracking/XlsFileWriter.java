@@ -24,6 +24,7 @@ import jxl.Workbook;
 import jxl.format.Border;
 import jxl.format.BorderLineStyle;
 import jxl.format.Colour;
+import jxl.format.UnderlineStyle;
 import jxl.write.Label;
 import jxl.write.WritableCell;
 import jxl.write.WritableCellFormat;
@@ -37,6 +38,8 @@ public class XlsFileWriter {
 
 	private WritableCellFormat headerCellFormat = new WritableCellFormat();
 	private WritableCellFormat valueCellFormat = new WritableCellFormat();
+	private WritableCellFormat subtotalCellFormat = new WritableCellFormat();
+	private WritableCellFormat grandtotalCellFormat = new WritableCellFormat();
 
 	private String sheetName = "default";
 	private boolean autoFitColumnsWidth = DEFAULT_AUTOFIT_COLUMNS_WIDTH;
@@ -45,17 +48,34 @@ public class XlsFileWriter {
 	private WritableSheet sheet;
 	private int lineNumber = 0;
 
+	private int[] columnsSize = null;
+
+	public void setColumnsSize(int[] columnsSize) {
+		this.columnsSize = columnsSize;
+	}
+
 	public void setOutputStream(File output) throws Exception {
 		workbook = Workbook.createWorkbook(output);
 
 		sheet = workbook.createSheet(sheetName, 0);
 
 		headerCellFormat.setBackground(Colour.VERY_LIGHT_YELLOW);
-		headerCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 10,
+		headerCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false));
 		headerCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 
 		valueCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+
+		subtotalCellFormat.setBackground(Colour.GRAY_25);
+		subtotalCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 11,
+				WritableFont.BOLD, false));
+		subtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+
+		grandtotalCellFormat.setBackground(Colour.GRAY_80);
+		grandtotalCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 11,
+				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
+				Colour.WHITE));
+		grandtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 	}
 
 	public void setProperties(Map<String, Object> properties) throws Exception {
@@ -70,14 +90,13 @@ public class XlsFileWriter {
 
 	public void writeHeaders(String[] headers) throws Exception {
 		for (int j = 0; j < headers.length; j++) {
-			sheet
-					.addCell(new Label(j, lineNumber, headers[j],
-							headerCellFormat));
+			sheet.addCell(new Label(j, lineNumber, headers[j], headerCellFormat));
 		}
 		lineNumber++;
 	}
 
-	public void writeNext(Object[] next) throws Exception {
+	private void writeNext(Object[] next, WritableCellFormat writableCellFormat)
+			throws Exception {
 
 		if (next != null) {
 			for (int j = 0; j < next.length; j++) {
@@ -89,27 +108,27 @@ public class XlsFileWriter {
 					if (next[j] instanceof Long) {
 
 						cell = new jxl.write.Number(j, lineNumber,
-								((Long) next[j]), valueCellFormat);
+								((Long) next[j]), writableCellFormat);
 
 					} else if (next[j] instanceof Integer) {
 
 						cell = new jxl.write.Number(j, lineNumber,
-								((Integer) next[j]), valueCellFormat);
+								((Integer) next[j]), writableCellFormat);
 
 					} else if (next[j] instanceof Double) {
 
 						cell = new jxl.write.Number(j, lineNumber,
-								((Double) next[j]), valueCellFormat);
+								((Double) next[j]), writableCellFormat);
 
 					} else {
 
 						cell = new Label(j, lineNumber, next[j].toString(),
-								valueCellFormat);
+								writableCellFormat);
 
 					}
 
 				} else {
-					cell = new Label(j, lineNumber, "", valueCellFormat);
+					cell = new Label(j, lineNumber, "", writableCellFormat);
 				}
 
 				sheet.addCell(cell);
@@ -117,16 +136,35 @@ public class XlsFileWriter {
 			lineNumber++;
 
 		} else {
-			if (autoFitColumnsWidth) {
-				int columns = sheet.getColumns();
-				for (int i = 0; i < columns; i++) {
-					CellView columnView = sheet.getColumnView(i);
+
+			int columns = sheet.getColumns();
+
+			for (int i = 0; i < columns; i++) {
+				CellView columnView = sheet.getColumnView(i);
+
+				if (columnsSize != null && columnsSize[i] > 0) {
+					columnView.setSize(columnsSize[i]);
+					sheet.setColumnView(i, columnView);
+				} else if (autoFitColumnsWidth) {
 					columnView.setAutosize(true);
 					sheet.setColumnView(i, columnView);
 				}
 			}
+
 			workbook.write();
 			workbook.close();
 		}
+	}
+
+	public void writeSubtotal(Object[] next) throws Exception {
+		writeNext(next, subtotalCellFormat);
+	}
+
+	public void writeTotal(Object[] next) throws Exception {
+		writeNext(next, grandtotalCellFormat);
+	}
+
+	public void writeValue(Object[] next) throws Exception {
+		writeNext(next, valueCellFormat);
 	}
 }

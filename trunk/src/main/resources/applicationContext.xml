@@ -41,11 +41,11 @@
 	<bean id="appService" class="com.googlecode.gtimetracking.service.AppService"
 		init-method="initApp">
 		<property name="uiService" ref="uiService" />
-		<property name="gcalendarService" ref="gcalendarService" />
+		<property name="googleService" ref="googleService" />
 		<property name="dataService" ref="dataService" />
 	</bean>
 
-	<bean id="gcalendarService" class="com.googlecode.gtimetracking.service.GCalendarService">
+	<bean id="googleService" class="com.googlecode.gtimetracking.service.GoogleService">
 		<property name="uiService" ref="uiService" />
 		<property name="dataService" ref="dataService" />
 		<property name="prefix" value="${prefix}" />
