@@ -21,8 +21,6 @@ import java.util.Map;
 
 import jxl.CellView;
 import jxl.Workbook;
-import jxl.format.Border;
-import jxl.format.BorderLineStyle;
 import jxl.format.Colour;
 import jxl.format.UnderlineStyle;
 import jxl.write.Label;
@@ -62,20 +60,20 @@ public class XlsFileWriter {
 		headerCellFormat.setBackground(Colour.VERY_LIGHT_YELLOW);
 		headerCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false));
-		headerCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+		// headerCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 
-		valueCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+		// valueCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 
 		subtotalCellFormat.setBackground(Colour.GRAY_25);
 		subtotalCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 11,
 				WritableFont.BOLD, false));
-		subtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+		// subtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 
 		grandtotalCellFormat.setBackground(Colour.GRAY_80);
 		grandtotalCellFormat.setFont(new WritableFont(WritableFont.ARIAL, 11,
 				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
 				Colour.WHITE));
-		grandtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+		// grandtotalCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
 	}
 
 	public void setProperties(Map<String, Object> properties) throws Exception {
